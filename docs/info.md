@@ -9,12 +9,12 @@ You can also include images in this folder and reference them in the markdown. E
 
 ## How it works
 
-Explain how your project works
+Input data (`ui_in`) is passed through a delta modulator, which outputs on/off spikes (`uo_out[0]` and `uo_out[1]`) based on the input data. The threshold can be dynamically changed (`uio_in`).
 
 ## How to test
 
-Explain how to use your project
+Run `make` in test/ to run the testbench.
 
 ## External hardware
 
-List external hardware used in your project (e.g. PMOD, LED display, etc), if any
+N/A.
