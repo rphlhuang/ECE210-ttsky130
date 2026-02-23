@@ -60,6 +60,6 @@ module tt_um_delta_modulator (
   assign uio_oe = 0;
 
   // List all unused inputs to prevent warnings
-  wire _unused = &{ena, uio_out};
+  wire _unused = &{ena, uio_out[7:0], 1'b0};
 
 endmodule
