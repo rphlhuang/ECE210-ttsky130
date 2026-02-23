@@ -35,8 +35,8 @@ async def test_delta_modulator(dut):
     await FallingEdge(dut.clk)
     
     # Output spike mapping: uo_out[0] = spike_on, uo_out[1] = spike_off
-    assert dut.uo_out[0].value == 0, "Expected spike_on=0"
-    assert dut.uo_out[1].value == 0, "Expected spike_off=0"
+    assert int(dut.uo_out.value) & 0x01 == 0, "Expected spike_on=0"
+    assert int(dut.uo_out.value) & 0x02 == 0, "Expected spike_off=0"
 
     # 2. Positive threshold crossed
     dut._log.info("Test case 2: Positive threshold crossed")
@@ -45,13 +45,13 @@ async def test_delta_modulator(dut):
     await FallingEdge(dut.clk)
     
     # Check outputs: ON spike should be 1
-    assert dut.uo_out[0].value == 1, "Expected spike_on=1"
-    assert dut.uo_out[1].value == 0, "Expected spike_off=0"
+    assert int(dut.uo_out.value) & 0x01 == 1, "Expected spike_on=1"
+    assert int(dut.uo_out.value) & 0x02 == 0, "Expected spike_off=0"
 
     # Wait another cycle, spikes should deassert since ref_val updated
     await RisingEdge(dut.clk)
     await FallingEdge(dut.clk)
-    assert dut.uo_out[0].value == 0, "Expected spike_on=0 after one cycle"
+    assert int(dut.uo_out.value) & 0x01 == 0, "Expected spike_on=0 after one cycle"
     
     # 3. Negative threshold crossed
     dut._log.info("Test case 3: Negative threshold crossed")
@@ -59,8 +59,8 @@ async def test_delta_modulator(dut):
     dut.ui_in.value = 0  # Error = 0 - 15 = -15. <= -threshold (-10).
     await RisingEdge(dut.clk)
     await FallingEdge(dut.clk)
-    assert dut.uo_out[0].value == 0, "Expected spike_on=0"
-    assert dut.uo_out[1].value == 1, "Expected spike_off=1"
+    assert int(dut.uo_out.value) & 0x01 == 0, "Expected spike_on=0"
+    assert int(dut.uo_out.value) & 0x02 == 2, "Expected spike_off=1"
 
     # 4. Jump drastically
     dut._log.info("Test case 4: Jump drastically to test ref_val update")
@@ -71,7 +71,7 @@ async def test_delta_modulator(dut):
     dut.ui_in.value = 200 # Error = 200 - 0 = +200.
     await RisingEdge(dut.clk)
     await FallingEdge(dut.clk)
-    assert dut.uo_out[0].value == 1, "Expected spike_on=1"
+    assert int(dut.uo_out.value) & 0x01 == 1, "Expected spike_on=1"
 
     # 5. Verify ref_val caught up immediately
     dut._log.info("Test case 5: Verify ref_val caught up")
@@ -81,8 +81,8 @@ async def test_delta_modulator(dut):
     dut.ui_in.value = 195 # Error = 195 - 200 = -5. No spike expected.
     await RisingEdge(dut.clk)
     await FallingEdge(dut.clk)
-    assert dut.uo_out[0].value == 0, "Expected spike_on=0, ref_val didn't catch up"
-    assert dut.uo_out[1].value == 0, "Expected spike_off=0"
+    assert int(dut.uo_out.value) & 0x01 == 0, "Expected spike_on=0, ref_val didn't catch up"
+    assert int(dut.uo_out.value) & 0x02 == 0, "Expected spike_off=0"
 
     # 6. Change threshold dynamically
     dut._log.info("Test case 6: Change threshold dynamically")
@@ -91,6 +91,6 @@ async def test_delta_modulator(dut):
     dut.ui_in.value = 175 # Error = 175 - 200 = -25. <= -20.
     await RisingEdge(dut.clk)
     await FallingEdge(dut.clk)
-    assert dut.uo_out[1].value == 1, "Expected spike_off=1 after dynamically changing threshold"
+    assert int(dut.uo_out.value) & 0x02 == 2, "Expected spike_off=1 after dynamically changing threshold"
 
     dut._log.info("All tests passed!")
